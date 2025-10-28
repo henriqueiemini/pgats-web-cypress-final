@@ -1,0 +1,40 @@
+name: Web E2E Tests - Cypress
+
+on:
+    workflow_dispatch:
+
+jobs:
+    cypress-run:
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                # Run tests in parallel across multiple machines if needed
+                containers: [1]
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20.x"
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Running tests
+              run: npx cypress run --quiet
+
+            - name: Test reports
+              uses: actions/upload-artifact@v4
+              if: ${{ !cancelled() }}
+              with:
+                  name: Execution report
+                  path: |
+                      cypress/reports
+                      cypress/screenshots
+                      cypress/videos
